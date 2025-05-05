@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: asset_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - asset-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet -u root -p example localhost:27017/asset_db
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - asset-network
+
+  security-service:
+    build: ./security-service
+    container_name: security-service
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    networks:
+      - asset-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  asset-service:
+    build: ./asset-service
+    container_name: asset-service
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - asset-network
+    environment:
+      FLASK_ENV: production
+      MONGO_URI: mongodb://root:example@mongodb:27017/asset_db?authSource=admin 
+      SECURITY_SERVICE_URL: http://security-service:8080  
+      REDIS_URL: redis://redis:6379/0  
+      PYTHONUNBUFFERED: 1
+
+volumes:
+  mongo_data:
+
+networks:
+  asset-network:
+    driver: bridge
