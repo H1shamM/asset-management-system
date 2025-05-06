@@ -1,11 +1,30 @@
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
 .env
+venv/
+qodana.*
 
 # Java
 target/
 *.jar
+*.class
+*.war
 
 # Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# Local development
 dump.rdb
+data/

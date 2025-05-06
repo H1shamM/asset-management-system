@@ -90,19 +90,29 @@ def get_assets():
 
 
 # --------------------------
-# BONUS: Create asset (Keep if time permits)
+#  Create asset
 # --------------------------
 @asset_bp.route("/", methods=["POST"])
 def add_asset():
     REQUIRED_FIELDS = {"id", "type", "owner", "status", "tags"}
-    if not request.json or not REQUIRED_FIELDS.issubset(request.json):
+    payload = request.get_json()
+    if not payload or not REQUIRED_FIELDS.issubset(request.json):
         return jsonify({"error": "Missing required fields"}), 400
 
+    if not isinstance(payload["tags"], list) or not all(isinstance(t, str) for t in payload["tags"]):
+        return jsonify({"error": "tags must be a list of strings"}), 400
+
     new_asset = {
-        "id": str(uuid.uuid4()),  # UUID generation
+        "id": payload["id"],  # UUID generation
         **request.json,
         "created_at": datetime.utcnow().isoformat()
     }
+
+
+    #check duplication
+    if db.assets.find_one({"id": new_asset["id"]}):
+        return jsonify({"error": "Asset already exists"}), 409
+
 
     # DB insert
     try:
