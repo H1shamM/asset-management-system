@@ -16,8 +16,8 @@ services:
     networks:
       - asset-network
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh --quiet -u root -p example localhost:27017/asset_db
-      interval: 10s
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5ss
       timeout: 5s
       retries: 5
       
@@ -29,6 +29,11 @@ services:
       - "6379:6379"
     networks:
       - asset-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   security-service:
     build: ./security-service
@@ -48,8 +53,10 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - mongodb
-      - redis
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - asset-network
     environment:
@@ -58,6 +65,12 @@ services:
       SECURITY_SERVICE_URL: http://security-service:8080  
       REDIS_URL: redis://redis:6379/0  
       PYTHONUNBUFFERED: 1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
 
 volumes:
   mongo_data:
