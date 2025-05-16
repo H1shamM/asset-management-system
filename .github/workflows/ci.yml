@@ -34,6 +34,7 @@ jobs:
         run: |
           pip install -r asset-service/requirements.txt
           pip install flake8 pytest
+          pip install pytest-mock
 
       - name: Lint Python code
         run: flake8 asset-service/ --exclude=venv,__pycache__

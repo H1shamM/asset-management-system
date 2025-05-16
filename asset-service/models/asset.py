@@ -3,4 +3,4 @@ class Asset:
     type: str  # Server/VM/Container
     owner: str  # Team/Department
     status: str  # Active/Retired
-    tags: list   # ["encrypted"]
+    tags: list  # ["encrypted"]

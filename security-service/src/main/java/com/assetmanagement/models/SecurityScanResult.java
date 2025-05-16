@@ -4,18 +4,16 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-
 public class SecurityScanResult {
-    
+
     private String assetId;
     private boolean isCompliant;
     public List<SecurityFinding> findings;
     public Instant scannedAt;
-    public Map<String, Object> summary; 
-    
-    public SecurityScanResult() {}
+    public Map<String, Object> summary;
 
-    
+    public SecurityScanResult() {
+    }
 
     public SecurityScanResult(String assetId, boolean isCompliant, List<SecurityFinding> findings, Instant scannedAt,
             Map<String, Object> summary) {
@@ -25,8 +23,6 @@ public class SecurityScanResult {
         this.scannedAt = scannedAt;
         this.summary = summary;
     }
-
-
 
     public String getAssetId() {
         return assetId;
@@ -67,7 +63,5 @@ public class SecurityScanResult {
     public void setSummary(Map<String, Object> summary) {
         this.summary = summary;
     }
-
-    
 
 }

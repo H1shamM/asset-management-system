@@ -5,6 +5,7 @@ WORKDIR /app
 
 # First copy only POM to cache dependencies
 COPY pom.xml .
+COPY config/ config/
 # Download dependencies and plugins (verify before building)
 RUN mvn verify clean --fail-never dependency:go-offline
 
@@ -37,7 +38,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 ENV JAVA_DEBUG_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 
 # Entrypoint
-ENTRYPOINT exec java $JAVA_OPTS $JAVA_DEBUG_OPTS -jar app.jar
+ENTRYPOINT ["sh","-c","exec java $JAVA_OPTS $JAVA_DEBUG_OPTS -jar app.jar"]
 
 # Document ports (actual exposure happens in compose)
 EXPOSE 8080 5005

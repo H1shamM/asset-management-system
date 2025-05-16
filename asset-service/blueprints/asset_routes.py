@@ -1,6 +1,5 @@
 import json
 import os
-import uuid
 from datetime import datetime
 
 import requests
@@ -94,9 +93,9 @@ def get_assets():
 # --------------------------
 @asset_bp.route("/", methods=["POST"])
 def add_asset():
-    REQUIRED_FIELDS = {"id", "type", "owner", "status", "tags"}
+    required_fields = {"id", "type", "owner", "status", "tags"}
     payload = request.get_json()
-    if not payload or not REQUIRED_FIELDS.issubset(request.json):
+    if not payload or not required_fields.issubset(request.json):
         return jsonify({"error": "Missing required fields"}), 400
 
     if not isinstance(payload["tags"], list) or not all(isinstance(t, str) for t in payload["tags"]):
@@ -117,7 +116,7 @@ def add_asset():
     # DB insert
     try:
         result = db.assets.insert_one(new_asset)
-    except Exception as e:
+    except Exception:
         return jsonify({"error": "Database insert failed"}), 500
 
     new_asset["_id"] = str(result.inserted_id)
